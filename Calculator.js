@@ -4,31 +4,38 @@ import "./Calculator.css";
 const Calculator = () => {
   const [display, setDisplay] = useState("0");
 
-  // Handle number and operator clicks
-  const handleClick = (value) => {
-    if (display === "0") {
-      setDisplay(value);
+  // Handle button clicks (numbers and operators)
+  const handleButtonClick = (value) => {
+    if (display === "0" && !isNaN(value)) {
+      setDisplay(value); // Replace initial 0 with the number
     } else {
-      setDisplay(display + value);
+      setDisplay(display + value); // Append value to display
     }
   };
 
-  // Handle Delete button
+  // Handle delete button
   const handleDelete = () => {
-    setDisplay(display.length > 1 ? display.slice(0, -1) : "0");
+    if (display.length === 1 || display === "Error") {
+      setDisplay("0");
+    } else {
+      setDisplay(display.slice(0, -1)); // Remove the last character
+    }
   };
 
-  // Handle Reset button
+  // Handle reset button
   const handleReset = () => {
     setDisplay("0");
   };
 
-  // Handle Calculation
+  // Handle calculation
   const handleCalculate = () => {
     try {
-      setDisplay(eval(display).toString()); // Use eval carefully in production
-    } catch {
-      setDisplay("Error");
+      // Replace 'x' with '*' for multiplication
+      const sanitizedExpression = display.replace(/x/g, "*");
+      const result = eval(sanitizedExpression); // Evaluate the expression
+      setDisplay(result.toString());
+    } catch (error) {
+      setDisplay("Error"); // Handle invalid expressions
     }
   };
 
@@ -36,28 +43,20 @@ const Calculator = () => {
     <div className="calculator">
       <div className="display">{display}</div>
       <div className="buttons">
-        {/* Numbers and Operators */}
-        {["7", "8", "9", "DEL", "4", "5", "6", "+", "1", "2", "3", "-", ".", "0", "/", "x"].map((item) => (
+        {["7", "8", "9", "DEL", "4", "5", "6", "+", "1", "2", "3", "-", ".", "0", "/", "x"].map((btn) => (
           <button
-            key={item}
+            key={btn}
             onClick={() =>
-              item === "DEL"
+              btn === "DEL"
                 ? handleDelete()
-                : item === "+"
-                ? handleClick("+")
-                : item === "-"
-                ? handleClick("-")
-                : item === "x"
-                ? handleClick("*")
-                : item === "/"
-                ? handleClick("/")
-                : handleClick(item)
+                : ["+", "-", "/", "x"].includes(btn)
+                ? handleButtonClick(btn)
+                : handleButtonClick(btn)
             }
           >
-            {item}
+            {btn}
           </button>
         ))}
-        {/* Reset and Calculate */}
         <button className="reset" onClick={handleReset}>
           RESET
         </button>
